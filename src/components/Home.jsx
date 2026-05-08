@@ -6,7 +6,7 @@ import {
 } from '@mui/material';
 import {
   ArrowForward, ChevronLeft, ChevronRight, LocalShipping,
-  Verified, SupportAgent, Star, ShoppingCart,
+  Verified, SupportAgent, Star, ShoppingCart, Check,
 } from '@mui/icons-material';
 import heroImage from '../assets/hero-image.jpg';
 import { keyframes } from '@mui/system';
@@ -441,10 +441,23 @@ const DynamicProductCard = ({ item, isOffer = false, onAddToCart, onView }) => {
   const sizes = isOffer ? item.sizes || [] : item.size || [];
   const accentColor = isOffer ? T.colors.offers : T.colors.accent;
 
+  // ✅ Create a dedicated handler for the card click (view product)
+  const handleCardClick = () => {
+    onView(item);
+  };
+
+  // ✅ Create a dedicated handler for add to cart that stops propagation
+  const handleAddToCartClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.nativeEvent.stopImmediatePropagation(); // Extra safety
+    onAddToCart(item);
+  };
+
   return (
     <motion.div variants={cardReveal} whileHover={{ y: -6 }} style={{ height: '100%' }}>
       <Card
-        onClick={() => onView(item)}
+        onClick={handleCardClick} // ✅ Uses dedicated handler
         elevation={0}
         sx={{
           height: '100%',
@@ -501,6 +514,12 @@ const DynamicProductCard = ({ item, isOffer = false, onAddToCart, onView }) => {
             <Button
               variant="contained"
               size="small"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                e.nativeEvent.stopImmediatePropagation();
+                handleCardClick();
+              }}
               sx={{
                 fontFamily: T.font.display,
                 fontWeight: 700,
@@ -656,6 +675,11 @@ const DynamicProductCard = ({ item, isOffer = false, onAddToCart, onView }) => {
                   key={s}
                   label={s}
                   size="small"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.nativeEvent.stopImmediatePropagation();
+                  }}
                   sx={{
                     fontFamily: T.font.display,
                     fontWeight: 700,
@@ -677,10 +701,7 @@ const DynamicProductCard = ({ item, isOffer = false, onAddToCart, onView }) => {
             fullWidth
             size="small"
             startIcon={<ShoppingCart sx={{ fontSize: '0.85rem' }} />}
-            onClick={(e) => {
-              e.stopPropagation();
-              onAddToCart(item);
-            }}
+            onClick={handleAddToCartClick} // ✅ Uses dedicated handler with proper event stopping
             sx={{
               mt: 'auto',
               fontFamily: T.font.display,
