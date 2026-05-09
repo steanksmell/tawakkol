@@ -158,9 +158,9 @@ const MobileImageSlider = () => {
       sx={{
         display: { xs: 'block', md: 'none' },
         direction: isRTL ? 'rtl' : 'ltr',
-        mt: -18,
-        ml: -2,
-        mr: -2,
+        mt: -14,
+        ml: -1,
+        mr: -1,
       }}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
