@@ -299,14 +299,7 @@ const Login = () => {
                         {loading ? t('auth.pleaseWait', 'Please wait...') : isSignUp ? t('auth.createAccountBtn', 'Create Account') : t('auth.signInBtn', 'Sign In')}
                       </Button>
 
-                      <Box sx={{ textAlign: 'center', mt: 3.5 }}>
-                        <Typography sx={{ fontFamily: isRTL ? '"Noto Kufi Arabic"' : 'Amaranth, sans-serif', fontSize: '0.9rem', color: '#888' }}>
-                          {isSignUp ? t('auth.alreadyHaveAccount', 'Already have an account?') : t('auth.noAccount', "Don't have an account?")}{' '}
-                          <Link component="button" onClick={toggleMode} sx={{ fontFamily: isRTL ? '"Noto Kufi Arabic"' : 'Amaranth, sans-serif', fontWeight: 700, color: '#c31919', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } }}>
-                            {isSignUp ? t('auth.signIn', 'Sign In') : t('auth.signUp', 'Sign Up')}
-                          </Link>
-                        </Typography>
-                      </Box>
+                     
 
                       <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mt: 4, pt: 3, borderTop: '1px solid #f0f0f0', flexDirection: isRTL ? 'row-reverse' : 'row' }}>
                         {[
