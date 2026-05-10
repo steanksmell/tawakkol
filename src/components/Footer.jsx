@@ -56,9 +56,9 @@ const Footer = () => {
 
   // Social links - UPDATE THESE WITH YOUR ACTUAL URLs
   const socialLinks = [
-    { name: 'Instagram', icon: Instagram, url: 'https://instagram.com/tawakkul' },
-    { name: 'TikTok', icon: TikTokIcon, url: 'https://tiktok.com/@tawakkul' },
-    { name: 'Facebook', icon: Facebook, url: 'https://facebook.com/tawakkul' },
+    { name: 'Instagram', icon: Instagram, url: 'https://www.instagram.com/tawakkol_wear' },
+    { name: 'TikTok', icon: TikTokIcon, url: 'https://www.tiktok.com/@tawakkol_wear?_r=1&_t=ZS-96F7nSglJYa' },
+    { name: 'Facebook', icon: Facebook, url: 'https://www.facebook.com/profile.php?id=61578870274724' },
   ];
 
   // Quick links
