@@ -22,6 +22,7 @@ import AdminDashboard from './admin/Dashboard';
 import Offers from './components/Offers';
 import Checkout from './components/Checkout';
 import AdminOrders from './admin/AdminOrders';
+import Trace from './admin/Trace';
 
 
 // Check if user is authenticated
@@ -189,6 +190,16 @@ function App() {
         <ProtectedRoute>
           <AdminLayout>
             <AdminOrders />
+          </AdminLayout>
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: '/admin/trace',
+      element: (
+        <ProtectedRoute>
+          <AdminLayout>
+            <Trace />
           </AdminLayout>
         </ProtectedRoute>
       ),

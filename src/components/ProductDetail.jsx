@@ -40,7 +40,22 @@ const FREE_SHIPPING_THRESHOLD = 200;
 // ==================== Form Fields (with translations) ====================
 const getFormFields = (t) => [
   { name: 'fullName', label: t('checkout.fullName', 'Full Name'), icon: Person, placeholder: 'John Doe', grid: { xs: 12 }, validation: { required: t('checkout.validation.nameRequired', 'Full name is required'), minLength: { value: 3, message: t('checkout.validation.nameMinLength', 'At least 3 characters') } } },
-  { name: 'email', label: t('checkout.email', 'Email Address'), icon: Email, type: 'email', placeholder: 'you@example.com', grid: { xs: 12 }, validation: { required: t('checkout.validation.emailRequired', 'Email is required'), pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t('checkout.validation.emailInvalid', 'Invalid email format') } } },
+  { 
+  name: 'email', 
+  label: t('checkout.email', 'Email Address (Optional)'), 
+  icon: Email, 
+  type: 'email', 
+  placeholder: 'you@example.com', 
+  grid: { xs: 12 }, 
+  required: false, // ✅ Make optional
+  validation: { 
+    // ✅ Remove required validation
+    pattern: { 
+      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
+      message: t('checkout.validation.emailInvalid', 'Invalid email format') 
+    } 
+  } 
+},
   { name: 'phone', label: t('checkout.phone', 'Phone Number'), icon: Phone, type: 'tel', placeholder: '+216 XX XXX XXX', grid: { xs: 12 }, validation: { required: t('checkout.validation.phoneRequired', 'Phone is required'), pattern: { value: /^[+]?[\d\s()-]{8,15}$/, message: t('checkout.validation.phoneInvalid', '8-15 digits required') } } },
   { name: 'address', label: t('checkout.address', 'Delivery Address'), icon: LocationOn, placeholder: 'Street, City, Postal Code', multiline: true, rows: 2, grid: { xs: 12 }, validation: { required: t('checkout.validation.addressRequired', 'Address is required'), minLength: { value: 5, message: t('checkout.validation.addressMinLength', 'Complete address required') } } },
   { name: 'notes', label: t('checkout.notes', 'Delivery Notes'), icon: Notes, placeholder: t('checkout.notesPlaceholder', 'Special instructions...'), multiline: true, rows: 2, grid: { xs: 12 }, required: false, validation: {} },

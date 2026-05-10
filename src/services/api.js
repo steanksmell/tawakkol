@@ -116,6 +116,35 @@ export const productService = {
   getLowStockProducts: () => {
     return api.get('/products/low-stock');
   },
+
+
+  // NEW: Stock management endpoints
+  processOrderStock: (items) => {
+    return api.post('/products/process-order-stock', { items }, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  },
+
+  releaseOrderStock: (items) => {
+    return api.post('/products/release-order-stock', { items }, {
+      headers: { 'Content-Type': 'application/json' },
+    });
+  },
+
+  getStockTracking: (params = {}) => {
+    const queryParams = new URLSearchParams();
+    Object.keys(params).forEach((key) => {
+      if (params[key] !== undefined && params[key] !== null && params[key] !== '') {
+        queryParams.append(key, params[key]);
+      }
+    });
+    const queryString = queryParams.toString();
+    return api.get(`/products/stock-tracking${queryString ? `?${queryString}` : ''}`);
+  },
+
+  getProductStockHistory: (productId, size) => {
+    return api.get(`/products/${productId}/stock-history/${size}`);
+  },
 };
 
 // ==================== Offer Service ====================
