@@ -36,6 +36,8 @@ import {
   Divider,
   Tabs,
   Tab,
+  Switch,
+  FormControlLabel,
 } from '@mui/material';
 import {
   Add,
@@ -59,6 +61,10 @@ import {
   AddCircle,
   RemoveCircle,
   LocationOn,
+  Visibility,
+  VisibilityOff,
+  ToggleOn,
+  ToggleOff,
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { productService, createProductFormData } from '../services/api';
@@ -106,6 +112,7 @@ const AdminProducts = () => {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [sizeFilter, setSizeFilter] = useState('all');
   const [inStockFilter, setInStockFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState('all');
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [openDialog, setOpenDialog] = useState(false);
@@ -128,6 +135,7 @@ const AdminProducts = () => {
   const [stockManagementTab, setStockManagementTab] = useState(0);
   const [selectedProductForStock, setSelectedProductForStock] = useState(null);
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
+  const [togglingStatus, setTogglingStatus] = useState({});
 
   // Fetch products on mount
   useEffect(() => {
@@ -135,10 +143,10 @@ const AdminProducts = () => {
     fetchStats();
   }, []);
 
-  // Filter products when search, category, size, or stock filters change
+  // Filter products when search, category, size, stock, or status filters change
   useEffect(() => {
     filterProducts();
-  }, [products, searchQuery, categoryFilter, sizeFilter, inStockFilter]);
+  }, [products, searchQuery, categoryFilter, sizeFilter, inStockFilter, statusFilter]);
 
   // Fetch products from API
   const fetchProducts = async () => {
@@ -154,6 +162,7 @@ const AdminProducts = () => {
       if (inStockFilter === 'true') params.inStock = 'true';
       if (inStockFilter === 'false') params.inStock = 'false';
       if (sizeFilter !== 'all') params.size = sizeFilter;
+      if (statusFilter !== 'all') params.status = statusFilter;
       
       const response = await productService.getProducts(params);
       
@@ -213,7 +222,44 @@ const AdminProducts = () => {
       filtered = filtered.filter((product) => product.category === categoryFilter);
     }
 
+    if (statusFilter !== 'all') {
+      filtered = filtered.filter((product) => product.status === statusFilter);
+    }
+
     setFilteredProducts(filtered);
+  };
+
+  // ✅ NEW: Toggle product status (active/inactive)
+  const handleToggleStatus = async (productId, currentStatus) => {
+    setTogglingStatus(prev => ({ ...prev, [productId]: true }));
+    
+    try {
+      const response = await productService.toggleProductStatus(productId);
+      
+      if (response.data.success) {
+        // Update local state
+        setProducts(prev => prev.map(p => 
+          p.id === productId 
+            ? { ...p, status: response.data.data.status }
+            : p
+        ));
+        
+        const newStatus = response.data.data.status;
+        showSnackbar(
+          `Product ${response.data.data.name} ${newStatus === 'active' ? 'activated' : 'deactivated'} successfully!`,
+          'success'
+        );
+        
+        // Refresh stats
+        fetchStats();
+      }
+    } catch (error) {
+      const errorMessage = error.response?.data?.message || 'Failed to toggle product status';
+      showSnackbar(errorMessage, 'error');
+      console.error('Toggle status error:', error);
+    } finally {
+      setTogglingStatus(prev => ({ ...prev, [productId]: false }));
+    }
   };
 
   // Form validation
@@ -841,6 +887,33 @@ const AdminProducts = () => {
             </MenuItem>
           </Select>
         </FormControl>
+
+        {/* ✅ NEW: Status Filter (Active/Inactive) */}
+        <FormControl size="small" sx={{ minWidth: 150 }}>
+          <InputLabel sx={{ fontFamily: 'Amaranth, sans-serif' }}>Product Status</InputLabel>
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            label="Product Status"
+            sx={{
+              fontFamily: 'Amaranth, sans-serif',
+              borderRadius: '8px',
+            }}
+          >
+            <MenuItem value="all" sx={{ fontFamily: 'Amaranth, sans-serif' }}>
+              All Status
+            </MenuItem>
+            <MenuItem value="active" sx={{ fontFamily: 'Amaranth, sans-serif' }}>
+              Active
+            </MenuItem>
+            <MenuItem value="inactive" sx={{ fontFamily: 'Amaranth, sans-serif' }}>
+              Inactive
+            </MenuItem>
+            <MenuItem value="draft" sx={{ fontFamily: 'Amaranth, sans-serif' }}>
+              Draft
+            </MenuItem>
+          </Select>
+        </FormControl>
       </Paper>
 
       {/* Products Table */}
@@ -875,6 +948,9 @@ const AdminProducts = () => {
                   </TableCell>
                   <TableCell sx={{ fontFamily: 'Amaranth, sans-serif', fontWeight: 700, color: '#141010' }}>
                     Total Stock
+                  </TableCell>
+                  <TableCell sx={{ fontFamily: 'Amaranth, sans-serif', fontWeight: 700, color: '#141010' }}>
+                    Status
                   </TableCell>
                   <TableCell sx={{ fontFamily: 'Amaranth, sans-serif', fontWeight: 700, color: '#141010' }}>
                     Rating
@@ -993,6 +1069,42 @@ const AdminProducts = () => {
                           }}
                         />
                       </TableCell>
+                      {/* ✅ NEW: Status Column with Toggle Button */}
+                      <TableCell>
+                        <Tooltip title={product.status === 'active' ? 'Click to deactivate' : 'Click to activate'} arrow>
+                          <FormControlLabel
+                            control={
+                              <Switch
+                                checked={product.status === 'active'}
+                                onChange={() => handleToggleStatus(product.id, product.status)}
+                                disabled={togglingStatus[product.id]}
+                                sx={{
+                                  '& .MuiSwitch-switchBase.Mui-checked': {
+                                    color: '#4caf50',
+                                  },
+                                  '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
+                                    backgroundColor: '#4caf50',
+                                  },
+                                }}
+                              />
+                            }
+                            label={
+                              <Typography
+                                sx={{
+                                  fontFamily: 'Amaranth, sans-serif',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600,
+                                  color: product.status === 'active' ? '#4caf50' : '#e70000',
+                                }}
+                              >
+                                {togglingStatus[product.id] ? '...' : (product.status === 'active' ? 'Active' : 'Inactive')}
+                              </Typography>
+                            }
+                            labelPlacement="start"
+                            sx={{ m: 0 }}
+                          />
+                        </Tooltip>
+                      </TableCell>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <Rating
@@ -1069,7 +1181,7 @@ const AdminProducts = () => {
                   ))}
                 {!tableLoading && filteredProducts.length === 0 && (
                   <TableRow>
-                    <TableCell colSpan={8} align="center" sx={{ py: 4 }}>
+                    <TableCell colSpan={9} align="center" sx={{ py: 4 }}>
                       <Box sx={{ textAlign: 'center' }}>
                         <Inventory sx={{ fontSize: 48, color: '#ccc', mb: 1 }} />
                         <Typography sx={{ fontFamily: 'Amaranth, sans-serif', color: '#999', fontSize: '1.1rem' }}>
@@ -1100,7 +1212,7 @@ const AdminProducts = () => {
         </Paper>
       </motion.div>
 
-      {/* Add/Edit Product Dialog with Stock by Size */}
+      {/* Add/Edit Product Dialog - (same as before, unchanged) */}
       <Dialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -1472,7 +1584,7 @@ const AdminProducts = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Stock Management Dialog */}
+      {/* Stock Management Dialog - (same as before, unchanged) */}
       <Dialog
         open={stockDialogOpen}
         onClose={() => setStockDialogOpen(false)}
@@ -1583,7 +1695,7 @@ const AdminProducts = () => {
         </DialogActions>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Confirmation Dialog - (same as before, unchanged) */}
       <Dialog
         open={deleteConfirm.open}
         onClose={() => setDeleteConfirm({ open: false, id: null, name: '' })}

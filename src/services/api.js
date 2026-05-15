@@ -106,6 +106,9 @@ export const productService = {
     return api.delete('/products/bulk', { data: { ids } });
   },
   
+  // ✅ NEW: Toggle product active/inactive status
+  toggleProductStatus: (id) => api.patch(`/products/${id}/toggle-status`),
+  
   // Stock management endpoints
   updateProductStock: (productId, stockData) => {
     return api.patch(`/products/${productId}/stock`, stockData, {
@@ -117,7 +120,7 @@ export const productService = {
     return api.get('/products/low-stock');
   },
 
-  // NEW: Stock management endpoints
+  // Stock management endpoints
   processOrderStock: (items) => {
     return api.post('/products/process-order-stock', { items }, {
       headers: { 'Content-Type': 'application/json' },
