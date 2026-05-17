@@ -12,7 +12,7 @@ export default defineConfig({
     port: 2909,
     proxy: {
       '/api': {
-        target: 'http://54.37.159.225:6060',
+        target: 'http://54.37.159.225:8080',
         changeOrigin: true,
         secure: false,
       }

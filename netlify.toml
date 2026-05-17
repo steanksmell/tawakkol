@@ -4,7 +4,7 @@
 
 [[redirects]]
   from = "/api/*"
-  to = "http://54.37.159.225:6000/api/:splat"
+  to = "http://54.37.159.225:8080/api/:splat"
   status = 200
   force = true
   headers = {X-From-Proxy = "Netlify"}
