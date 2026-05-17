@@ -205,7 +205,7 @@ export const offerService = {
 export const orderService = {
   // Create a new order (public)
   createOrder: (orderData) => {
-    return api.post('/orders', orderData, {
+    return api.post('/orders/post', orderData, {
       headers: { 'Content-Type': 'application/json' },
     });
   },
