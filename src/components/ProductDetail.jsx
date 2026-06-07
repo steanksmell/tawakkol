@@ -38,24 +38,38 @@ const SHIPPING_COST = 9;
 const FREE_SHIPPING_THRESHOLD = 200;
 
 // ==================== Form Fields (with translations) ====================
+// ⚠️ EMAIL FIELD COMMENT (2026-06-07)
+// Email field is currently DISABLED / NOT IN USE
+// - Field is commented out from the form
+// - Not required for checkout flow
+// - To re-enable: uncomment the email field object below
+// - Also uncomment in FORM_FIELDS array and ProField rendering
+// - Reason: Reducing checkout friction, collecting email separately if needed
 const getFormFields = (t) => [
   { name: 'fullName', label: t('checkout.fullName', 'Full Name'), icon: Person, placeholder: 'John Doe', grid: { xs: 12 }, validation: { required: t('checkout.validation.nameRequired', 'Full name is required'), minLength: { value: 3, message: t('checkout.validation.nameMinLength', 'At least 3 characters') } } },
-  { 
-  name: 'email', 
-  label: t('checkout.email', 'Email Address (Optional)'), 
-  icon: Email, 
-  type: 'email', 
-  placeholder: 'you@example.com', 
-  grid: { xs: 12 }, 
-  required: false, // ✅ Make optional
-  validation: { 
-    // ✅ Remove required validation
-    pattern: { 
-      value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
-      message: t('checkout.validation.emailInvalid', 'Invalid email format') 
-    } 
-  } 
-},
+  
+  // ==============================================================
+  // 📧 EMAIL FIELD - COMMENTED OUT (NOT IN USE)
+  // Uncomment below to re-enable email collection
+  // ==============================================================
+  // { 
+  //   name: 'email', 
+  //   label: t('checkout.email', 'Email Address'), 
+  //   icon: Email, 
+  //   type: 'email', 
+  //   placeholder: 'you@example.com', 
+  //   grid: { xs: 12 }, 
+  //   required: true,
+  //   validation: { 
+  //     required: t('checkout.validation.emailRequired', 'Email is required'),
+  //     pattern: { 
+  //       value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
+  //       message: t('checkout.validation.emailInvalid', 'Invalid email format') 
+  //     } 
+  //   } 
+  // },
+  // ==============================================================
+  
   { name: 'phone', label: t('checkout.phone', 'Phone Number'), icon: Phone, type: 'tel', placeholder: '+216 XX XXX XXX', grid: { xs: 12 }, validation: { required: t('checkout.validation.phoneRequired', 'Phone is required'), pattern: { value: /^[+]?[\d\s()-]{8,15}$/, message: t('checkout.validation.phoneInvalid', '8-15 digits required') } } },
   { name: 'address', label: t('checkout.address', 'Delivery Address'), icon: LocationOn, placeholder: 'Street, City, Postal Code', multiline: true, rows: 2, grid: { xs: 12 }, validation: { required: t('checkout.validation.addressRequired', 'Address is required'), minLength: { value: 5, message: t('checkout.validation.addressMinLength', 'Complete address required') } } },
   { name: 'notes', label: t('checkout.notes', 'Delivery Notes'), icon: Notes, placeholder: t('checkout.notesPlaceholder', 'Special instructions...'), multiline: true, rows: 2, grid: { xs: 12 }, required: false, validation: {} },
@@ -282,9 +296,21 @@ const ProductDetail = () => {
   const shippingCost = itemTotal >= FREE_SHIPPING_THRESHOLD ? 0 : SHIPPING_COST;
   const total = itemTotal + shippingCost;
 
+  // NOTE: Email field is excluded from order payload (commented out in form fields)
   const handleOrderSubmit = () => {
     handleSubmit(
-      { customer: { fullName: formData.fullName, email: formData.email, phone: formData.phone, address: formData.address, notes: formData.notes || '' }, items: [{ productId: product._id || product.id, itemType: product.isOffer ? 'Offer' : 'Product', quantity: quantity, size: selectedSize }], paymentMethod: 'cash_on_delivery', shippingCost: shippingCost },
+      { 
+        customer: { 
+          fullName: formData.fullName, 
+          // email: formData.email, // ❌ EMAIL FIELD DISABLED - not collecting
+          phone: formData.phone, 
+          address: formData.address, 
+          notes: formData.notes || '' 
+        }, 
+        items: [{ productId: product._id || product.id, itemType: product.isOffer ? 'Offer' : 'Product', quantity: quantity, size: selectedSize }], 
+        paymentMethod: 'cash_on_delivery', 
+        shippingCost: shippingCost 
+      },
       (orderData) => { showSnackbar(t('product.orderPlaced', 'Order #{{number}} placed successfully! Total: {{total}} TND', { number: orderData.orderNumber, total: total.toFixed(2) }), 'success'); setQuantity(1); },
       (errorMessage) => showSnackbar(errorMessage, 'error')
     );

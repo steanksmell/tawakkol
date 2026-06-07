@@ -64,9 +64,38 @@ const SHIPPING_COST = 9;
 const FREE_SHIPPING_THRESHOLD = 200;
 
 // ==================== FORM CONFIGURATION ====================
+// ⚠️ EMAIL FIELD COMMENT (2026-06-07)
+// Email field is currently DISABLED / NOT IN USE in Checkout
+// - Field is commented out from the form
+// - Not required for checkout flow
+// - To re-enable: uncomment the email field object below
+// - Also uncomment email in order payload (see handleSubmit)
+// - Reason: Reducing checkout friction, email collected separately if needed
 const getFormFields = (t) => [
   { name: 'fullName', label: t('checkout.fullName', 'Full Name'), icon: Person, placeholder: 'John Doe', grid: { xs: 12, sm: 6 }, validation: { required: t('checkout.validation.nameRequired', 'Full name is required'), minLength: { value: 3, message: t('checkout.validation.nameMinLength', 'At least 3 characters') } } },
-  { name: 'email', label: t('checkout.email', 'Email Address (Optional)'), icon: Email, type: 'email', placeholder: 'you@example.com', grid: { xs: 12, sm: 6 }, required: false, validation: { pattern: { value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t('checkout.validation.emailInvalid', 'Invalid email format') } } },
+  
+  // ==============================================================
+  // 📧 EMAIL FIELD - COMMENTED OUT (NOT IN USE)
+  // Uncomment below to re-enable email collection in checkout
+  // ==============================================================
+  // { 
+  //   name: 'email', 
+  //   label: t('checkout.email', 'Email Address'), 
+  //   icon: Email, 
+  //   type: 'email', 
+  //   placeholder: 'you@example.com', 
+  //   grid: { xs: 12, sm: 6 }, 
+  //   required: true,
+  //   validation: { 
+  //     required: t('checkout.validation.emailRequired', 'Email is required'),
+  //     pattern: { 
+  //       value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, 
+  //       message: t('checkout.validation.emailInvalid', 'Invalid email format') 
+  //     } 
+  //   } 
+  // },
+  // ==============================================================
+  
   { name: 'phone', label: t('checkout.phone', 'Phone Number'), icon: Phone, type: 'tel', placeholder: '+216 XX XXX XXX', grid: { xs: 12, sm: 6 }, validation: { required: t('checkout.validation.phoneRequired', 'Phone is required'), pattern: { value: /^[+]?[\d\s()-]{8,15}$/, message: t('checkout.validation.phoneInvalid', '8-15 digits required') } } },
   { name: 'address', label: t('checkout.address', 'Delivery Address'), icon: LocationOn, placeholder: 'Street, City, Postal Code', multiline: true, rows: 2, grid: { xs: 12 }, validation: { required: t('checkout.validation.addressRequired', 'Address is required'), minLength: { value: 10, message: t('checkout.validation.addressMinLength', 'Complete address required') } } },
   { name: 'notes', label: t('checkout.notes', 'Delivery Notes'), icon: Notes, placeholder: t('checkout.notesPlaceholder', 'Special instructions (optional)...'), multiline: true, rows: 2, grid: { xs: 12 }, required: false, validation: {} },
@@ -264,9 +293,9 @@ const OrderSuccessScreen = ({ orderResult, onContinue, t, isRTL }) => (
           <Receipt sx={{ color: DesignSystem.colors.accent, fontSize: 18 }} />
           <Typography sx={{ fontFamily: DesignSystem.typography.mono, fontWeight: 700, fontSize: '1.1rem', color: DesignSystem.colors.accent, letterSpacing: '0.05em' }}>#{orderResult?.orderNumber}</Typography>
         </Box>
+        {/* NOTE: Email reference removed from thank you message since email is disabled */}
         <Typography sx={{ fontFamily: isRTL ? DesignSystem.typography.ar : DesignSystem.typography.body, color: DesignSystem.colors.textMuted, fontSize: '0.9rem', lineHeight: 1.6, mb: 2 }}>
-          {t('checkout.thankYou', 'Thank you for your order! A confirmation email has been sent to')}{' '}
-          <strong style={{ color: DesignSystem.colors.bg }}>{orderResult?.customer?.email}</strong>.
+          {t('checkout.thankYouShort', 'Thank you for your order!')}
         </Typography>
         <Typography sx={{ fontFamily: isRTL ? DesignSystem.typography.ar : DesignSystem.typography.body, color: DesignSystem.colors.textPlaceholder, fontSize: '0.85rem', mb: 4 }}>
           {t('checkout.expectedDelivery', 'Expected delivery: 3-5 business days')}
@@ -384,7 +413,27 @@ const Checkout = () => {
     if (cart.length === 0) { showSnackbar(t('checkout.cartEmpty', 'Your cart is empty'), 'error'); return; }
     setIsSubmitting(true);
     try {
-      const orderData = { customer: { fullName: formData.fullName, email: formData.email, phone: formData.phone, address: formData.address, notes: formData.notes || '' }, items: cart.map((item) => ({ productId: item.productId || item._id, itemType: item.isOffer ? 'Offer' : 'Product', quantity: item.quantity, size: item.selectedSize })), paymentMethod: 'cash_on_delivery', shippingCost: shippingCost };
+      // ==============================================================
+      // 📧 EMAIL FIELD DISABLED - Not included in order payload
+      // To re-enable: uncomment 'email: formData.email' below
+      // ==============================================================
+      const orderData = { 
+        customer: { 
+          fullName: formData.fullName, 
+          // email: formData.email, // ❌ EMAIL FIELD DISABLED - not collecting
+          phone: formData.phone, 
+          address: formData.address, 
+          notes: formData.notes || '' 
+        }, 
+        items: cart.map((item) => ({ 
+          productId: item.productId || item._id, 
+          itemType: item.isOffer ? 'Offer' : 'Product', 
+          quantity: item.quantity, 
+          size: item.selectedSize 
+        })), 
+        paymentMethod: 'cash_on_delivery', 
+        shippingCost: shippingCost 
+      };
       const response = await orderService.createOrder(orderData);
       if (response.data.success) { setOrderSuccess(response.data.data); clearCart(); showSnackbar(`${t('checkout.orderPlaced', 'Order #{{number}} placed successfully!', { number: response.data.data.orderNumber })}`, 'success'); }
     } catch (error) { showSnackbar(error.response?.data?.message || t('checkout.orderFailed', 'Failed to place order. Please try again.'), 'error'); }
@@ -495,7 +544,5 @@ const Checkout = () => {
     </Box>
   );
 };
-
-
 
 export default Checkout;
